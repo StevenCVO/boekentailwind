@@ -6,8 +6,24 @@
         <slot name="titel-knop"></slot>
       </div>
     </caption>
-    <thead></thead>
-    <tbody></tbody>
+    <thead>
+      <tr>
+        <th
+          class="text-left p-2 border-b"
+          v-for="kolom of kolommen"
+          :key="kolom.veld"
+        >
+          {{ kolom.naam }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border" v-for="item of items" :key="item[itemKey]">
+        <td class="p-2" v-for="kolom of kolommen" :key="kolom.veld">
+          {{ item[kolom.veld] }}
+        </td>
+      </tr>
+    </tbody>
     <tfoot></tfoot>
   </table>
 </template>
@@ -26,6 +42,10 @@ export default {
       //   return []
       // }
       default: () => []
+    },
+    itemKey: {
+      type: String,
+      default: "_id"
     },
     kolommen: {
       type: Array,

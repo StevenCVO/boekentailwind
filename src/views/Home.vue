@@ -5,7 +5,12 @@
       src="@/assets/images/boeken.jpg"
       alt="Afbeelding boeken"
     />
-    <data-tabel titel="Boekbeheer" :items="boeken" :kolommen="kolommen">
+    <data-tabel
+      titel="Boekbeheer"
+      :items="boeken"
+      :kolommen="kolommen"
+      itemKey="_id"
+    >
       <template v-slot:titel-knop>
         <button class="border-2 rounded p-2 hover:bg-blue-600">
           Nieuw boek
