@@ -1,27 +1,52 @@
 <template>
   <div>
     <img
-      class="w-2/5 mx-auto mb-8"
+      class="w-1/5 mx-auto mb-8"
       src="@/assets/images/boeken.jpg"
       alt="Afbeelding boeken"
     />
-
-    <table class="w-full">
-      <caption class="bg-blue-500 text-white text-xl p-4">
-        <div class="flex flex-row justify-between items-center">
-          <span class="font-semibold">Boekbeheer</span>
-          <button class="border-2 rounded p-2 hover:bg-blue-600">
-            Nieuw boek
-          </button>
-        </div>
-      </caption>
-    </table>
+    <data-tabel titel="Boekbeheer" :items="boeken" :kolommen="kolommen">
+      <template v-slot:titel-knop>
+        <button class="border-2 rounded p-2 hover:bg-blue-600">
+          Nieuw boek
+        </button>
+      </template>
+    </data-tabel>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import DataTabel from "@/components/DataTabel.vue";
+
 export default {
   name: "home",
-  components: {}
+  components: {
+    DataTabel
+  },
+  data() {
+    return {
+      boeken: [],
+      kolommen: [
+        {
+          naam: "Titel",
+          veld: "titel"
+        },
+        {
+          naam: "Auteur",
+          veld: "auteur.naam"
+        },
+        {
+          naam: "Aantal Pagina's",
+          veld: "aantalPaginas"
+        }
+      ]
+    };
+  },
+  async created() {
+    // Data ophalen van server
+    const boeken = await axios("http://localhost:7000/boeken");
+    this.boeken = boeken.data;
+  }
 };
 </script>
