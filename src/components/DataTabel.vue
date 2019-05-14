@@ -14,6 +14,10 @@
           :key="kolom.veld"
         >
           {{ kolom.naam }}
+
+          <i @click="sorteren(kolom.veld)" class="material-icons cursor-pointer"
+            >arrow_upward</i
+          >
         </th>
       </tr>
     </thead>
@@ -41,11 +45,17 @@
               van {{ items.length }}
             </div>
             <i
+              @click="navigeerPagina(-1)"
               :class="{ 'opacity-25': huidigePagina === 1 }"
               class="material-icons cursor-pointer"
               >keyboard_arrow_left</i
             >
-            <i class="material-icons cursor-pointer">keyboard_arrow_right</i>
+            <i
+              @click="navigeerPagina(1)"
+              :class="{ 'opacity-25': huidigePagina === aantalPaginas }"
+              class="material-icons cursor-pointer"
+              >keyboard_arrow_right</i
+            >
           </div>
         </td>
       </tr>
@@ -58,7 +68,9 @@ export default {
   data() {
     return {
       perPagina: 5,
-      huidigePagina: 1
+      huidigePagina: 1,
+      sorteerveld: "",
+      richting: "asc"
     };
   },
   props: {
@@ -84,8 +96,23 @@ export default {
     }
   },
   computed: {
+    aantalPaginas() {
+      return Math.ceil(this.items.length / this.perPagina);
+    },
+    gesorteerd() {
+      if (!this.sorteerveld) {
+        return this.items;
+      }
+
+      return this.items.slice().sort((a, b) => {
+        const waarde1 = this.getWaardeViaVeld(a, this.sorteerveld).toString();
+        const waarde2 = this.getWaardeViaVeld(b, this.sorteerveld).toString();
+
+        return waarde1.localeCompare(waarde2, undefined, { numeric: true });
+      });
+    },
     gepagineerd() {
-      return this.items.slice(
+      return this.gesorteerd.slice(
         (this.huidigePagina - 1) * this.perPagina,
         Math.min(this.huidigePagina * this.perPagina, this.items.length)
       );
@@ -103,6 +130,13 @@ export default {
       return veldArray.reduce((res, veld) => {
         return res[veld];
       }, obj);
+    },
+    navigeerPagina(aantal) {
+      this.huidigePagina = Math.max(1, this.huidigePagina + aantal);
+      this.huidigePagina = Math.min(this.aantalPaginas, this.huidigePagina);
+    },
+    sorteren(veld) {
+      this.sorteerveld = veld;
     }
   }
 };
