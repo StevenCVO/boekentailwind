@@ -12,9 +12,20 @@
       itemKey="_id"
     >
       <template v-slot:titel-knop>
-        <button class="border-2 rounded p-2 hover:bg-blue-600">
+        <button
+          @click="nieuwBoek"
+          class="border-2 rounded p-2 hover:bg-blue-600"
+        >
           Nieuw boek
         </button>
+      </template>
+      <template v-slot:acties>
+        <td>
+          <i @click="wijzigBoek" class="material-icons cursor-pointer">edit</i>
+          <i @click="verwijderBoek" class="material-icons cursor-pointer"
+            >delete</i
+          >
+        </td>
       </template>
     </data-tabel>
   </div>
@@ -36,20 +47,34 @@ export default {
         {
           naam: "Titel",
           veld: "titel",
-          sorteerbaar: true
+          sorteerbaar: true,
+          zoekbaar: true
         },
         {
           naam: "Auteur",
           veld: "auteur.naam",
-          sorteerbaar: true
+          sorteerbaar: true,
+          zoekbaar: true
         },
         {
           naam: "Aantal Pagina's",
           veld: "aantalPaginas",
-          sorteerbaar: true
+          sorteerbaar: true,
+          zoekbaar: false
         }
       ]
     };
+  },
+  methods: {
+    nieuwBoek() {
+      // Nieuw boek toevoegen
+    },
+    wijzigBoek() {
+      // Boek wijzigen
+    },
+    verwijderBoek() {
+      // Boek verwijderen
+    }
   },
   async created() {
     // Data ophalen van server

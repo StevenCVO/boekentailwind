@@ -3,6 +3,17 @@
     <caption class="bg-blue-500 text-white text-xl p-4">
       <div class="flex flex-row justify-between items-center">
         <span class="font-semibold">{{ titel }}</span>
+        <div class="relative">
+          <input
+            type="text"
+            class="rounded-full bg-blue-100 opacity-75 text-black pr-3 outline-none pl-8"
+            v-model="zoekterm"
+          />
+          <i
+            class="absolute material-icons icon-search cursor-pointer text-black"
+            >search</i
+          >
+        </div>
         <slot name="titel-knop"></slot>
       </div>
     </caption>
@@ -15,7 +26,22 @@
         >
           {{ kolom.naam }}
 
-          <i @click="sorteren(kolom.veld)" class="material-icons cursor-pointer"
+          <i
+            v-if="sorteerveld === kolom.veld && richting === 'asc'"
+            @click="sorteren(kolom.veld)"
+            class="material-icons cursor-pointer"
+            >arrow_upward</i
+          >
+          <i
+            v-else-if="sorteerveld === kolom.veld && richting === 'desc'"
+            @click="sorteren(kolom.veld)"
+            class="material-icons cursor-pointer"
+            >arrow_downward</i
+          >
+          <i
+            v-else
+            @click="sorteren(kolom.veld)"
+            class="material-icons cursor-pointer opacity-25"
             >arrow_upward</i
           >
         </th>
@@ -26,6 +52,7 @@
         <td class="p-2" v-for="kolom of kolommen" :key="kolom.veld">
           {{ getWaardeViaVeld(item, kolom.veld) }}
         </td>
+        <slot name="acties"></slot>
       </tr>
     </tbody>
     <tfoot>
@@ -70,7 +97,8 @@ export default {
       perPagina: 5,
       huidigePagina: 1,
       sorteerveld: "",
-      richting: "asc"
+      richting: "asc",
+      zoekterm: ""
     };
   },
   props: {
@@ -99,16 +127,48 @@ export default {
     aantalPaginas() {
       return Math.ceil(this.items.length / this.perPagina);
     },
+    gezocht() {
+      if (!this.zoekterm) return this.items;
+
+      return this.items.filter(item => {
+        // let gevonden = false;
+        // this.kolommen.forEach(kolom => {
+        //   if (kolom.zoekbaar && !gevonden) {
+        //     gevonden = this.getWaardeViaVeld(item, kolom.veld)
+        //       .toLowerCase()
+        //       .includes(this.zoekterm.toLowerCase());
+        //   }
+        // });
+        // return gevonden;
+
+        for (const kolom of this.kolommen.filter(kolom => kolom.zoekbaar)) {
+          if (
+            this.getWaardeViaVeld(item, kolom.veld)
+              .toLowerCase()
+              .includes(this.zoekterm.toLowerCase())
+          ) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+    },
     gesorteerd() {
       if (!this.sorteerveld) {
-        return this.items;
+        return this.gezocht;
       }
 
-      return this.items.slice().sort((a, b) => {
+      return this.gezocht.slice().sort((a, b) => {
         const waarde1 = this.getWaardeViaVeld(a, this.sorteerveld).toString();
         const waarde2 = this.getWaardeViaVeld(b, this.sorteerveld).toString();
 
-        return waarde1.localeCompare(waarde2, undefined, { numeric: true });
+        const sorteerRichting = this.richting === "asc" ? 1 : -1;
+
+        return (
+          waarde1.localeCompare(waarde2, undefined, { numeric: true }) *
+          sorteerRichting
+        );
       });
     },
     gepagineerd() {
@@ -136,10 +196,27 @@ export default {
       this.huidigePagina = Math.min(this.aantalPaginas, this.huidigePagina);
     },
     sorteren(veld) {
+      if (veld !== this.sorteerveld) {
+        this.richting = "asc";
+      } else if (this.richting === "asc") {
+        this.richting = "desc";
+      } else {
+        this.richting = "asc";
+      }
+
       this.sorteerveld = veld;
     }
+  },
+  created() {
+    this.sorteerveld = this.kolommen[0].veld;
   }
 };
 </script>
 
-<style></style>
+<style>
+.icon-search {
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+</style>
